@@ -1,25 +1,22 @@
-const request = require('request');
+const express = require('express');
+const app = express();
+const router = express.Router();
+app.use(express.static('public'));
 
-let headers = {
-    'Authorization': 'yj {o_34bn8ghi3q}',
-    'Content-Type': 'application/json'
-};
+const BitlyClient = require('bitly').BitlyClient;
+const bitly = new BitlyClient('836d0c4f8278585dbd8fb4b4635f76b230690a5c');
 
-let dataString = '{"long_url": "https://dev.bitly.com", "domain": "bit.ly", "group_guid": "Ba1bc23dE4F" }';
-
-var options = {
-    url: 'https://api-ssl.bitly.com.v4.shorten',
-    method: "POST",
-    headers: headers,
-    body: dataString
-};
-
-var callback = (error, response, body) => {
-    if(!error && response.statusCode == 200) {
-        console.log(body);
-    }else{
-        console.log(error);
-    }
+async function get_shorten_url() {
+  const response = await bitly.shorten('https://www.google.com');
+  console.log(`Your shortened bitlink is ${response.link}`);
+  return response.link
 }
 
-request(options, callback);
+router.get('/', function(req, res) {
+    res.sendFile('public/index.html', {root:__dirname});
+});
+
+app.use('/', router);
+app.listen(process.env.port || 3000);
+
+console.log('Running at port 3000\nhttp://localhost:3000');
